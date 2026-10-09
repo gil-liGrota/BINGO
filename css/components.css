@@ -1,0 +1,148 @@
+/* =========================================
+   COMPONENTS CSS - Bingo PWA
+   ========================================= */
+
+/* --- Cards & Containers --- */
+.card {
+  background: var(--card-bg, #1E1E1E);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid #2D3748;
+  margin-bottom: 1rem;
+}
+
+/* --- Buttons --- */
+button {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background-color: var(--primary, #4F46E5);
+  color: #FFFFFF;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #4338CA);
+}
+
+.btn-secondary {
+  background-color: #374151;
+  color: #F3F4F6;
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: #4B5563;
+}
+
+.btn-danger {
+  background-color: var(--danger, #EF4444);
+  color: #FFFFFF;
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: #DC2626;
+}
+
+.btn-warning {
+  background-color: var(--warning, #F59E0B);
+  color: #111827;
+}
+.btn-warning:hover:not(:disabled) {
+  background-color: #D97706;
+}
+
+.btn-link {
+  background: transparent;
+  color: var(--primary, #4F46E5);
+  padding: 0.4rem 0;
+  text-decoration: underline;
+  width: auto;
+}
+
+/* --- Form Inputs & Selects --- */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin: 0.4rem 0 0.8rem 0;
+  box-sizing: border-box;
+  background-color: #2D3748;
+  border: 1px solid #4A5568;
+  color: #FFFFFF;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary, #4F46E5);
+}
+
+/* --- Modals --- */
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background-color: var(--card-bg, #1E1E1E);
+  padding: 1.75rem;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid #374151;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Messages & Badges --- */
+.error-msg {
+  color: var(--danger, #EF4444);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #374151;
+  color: #E5E7EB;
+}

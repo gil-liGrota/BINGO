@@ -1,0 +1,124 @@
+/* =========================================
+   GAME CSS - Bingo PWA (Person B)
+   ========================================= */
+
+/* --- Game Header & Status --- */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+}
+
+#game-status-message {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #E5E7EB;
+  background: #1E1E1E;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border-right: 4px solid var(--primary, #4F46E5);
+  flex-grow: 1;
+}
+
+/* --- Bingo Grid Board --- */
+.bingo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* ברירת מחדל 3x3 */
+  gap: 12px;
+  width: 100%;
+  max-width: 450px;
+  margin: 1rem auto;
+  aspect-ratio: 1;
+}
+
+/* התאמה דינמית לגדלי לוח שונים (למשל 4x4) */
+.bingo-grid.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+/* --- Grid Individual Cells --- */
+.bingo-cell {
+  background-color: #2D3748;
+  border: 2px solid #4A5568;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #F3F4F6;
+  padding: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  word-break: break-word;
+  position: relative;
+  overflow: hidden;
+}
+
+.bingo-cell:hover {
+  background-color: #3A475C;
+  border-color: #718096;
+}
+
+/* משבצת מסומנת (Marked) */
+.bingo-cell.marked {
+  background-color: var(--primary, #4F46E5);
+  border-color: #818CF8;
+  color: #FFFFFF;
+  box-shadow: 0 0 12px rgba(79, 70, 229, 0.5);
+  transform: scale(0.97);
+}
+
+.bingo-cell.marked::after {
+  content: '✓';
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 0.8rem;
+  color: #A5B4FC;
+}
+
+/* משבצת חסומה (Blocked State) */
+.bingo-cell.blocked {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: var(--danger, #EF4444);
+  color: #FCA5A5;
+  animation: pulseBlock 1.5s infinite;
+}
+
+.bingo-cell.blocked::before {
+  content: '🔒';
+  position: absolute;
+  font-size: 1.5rem;
+  opacity: 0.6;
+}
+
+@keyframes pulseBlock {
+  0%, 100% { border-color: #EF4444; }
+  50% { border-color: #B91C1C; }
+}
+
+/* --- Results List (Modal) --- */
+#results-list {
+  padding-right: 1.5rem;
+  margin: 1rem 0;
+}
+
+#results-list li {
+  padding: 0.6rem 0;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #374151;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#results-list li:first-child {
+  color: #FBBF24; /* מקום ראשון - זהב */
+  font-weight: bold;
+}

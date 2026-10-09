@@ -1,0 +1,119 @@
+:root {
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --bg-color: #121212;
+  --card-bg: #1E1E1E;
+  --text-color: #F3F4F6;
+  --danger: #EF4444;
+  --warning: #F59E0B;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  direction: rtl;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid #333;
+}
+
+/* ניהול מסכים ב-SPA */
+.view-screen {
+  display: none;
+  padding: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.view-screen.active {
+  display: block;
+}
+
+.card {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* כפתורים וטפסים */
+button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-secondary { background: #374151; color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-warning { background: var(--warning); color: #000; }
+
+input, select {
+  width: 100%;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  box-sizing: border-box;
+  background: #2D3748;
+  border: 1px solid #4A5568;
+  color: white;
+  border-radius: 6px;
+}
+
+/* גריד בינגו */
+.bingo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.bingo-cell {
+  background: #2D3748;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  padding: 5px;
+}
+
+.bingo-cell.marked { background: var(--primary); }
+.bingo-cell.blocked { background: var(--danger); }
+
+/* מודאלים */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+}

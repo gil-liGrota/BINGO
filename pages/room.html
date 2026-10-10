@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בינגו - מילוי לוח</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container" style="max-width: 600px;">
+        <h2>מילוי הלוח שלך</h2>
+        <div id="board-builder-container"></div>
+        <button id="save-board-btn">שמור לוח והתכונן</button>
+        
+        <div style="margin-top: 20px;">
+            <h3>משתתפים בחדר:</h3>
+            <ul id="room-players-list" style="list-style: none; padding: 0;"></ul>
+        </div>
+
+        <button id="start-game-btn" style="background-color: #38a169; display: none; margin-top: 15px;">התחל משחק (למנהל בלבד)</button>
+    </div>
+
+    <script type="module" src="../js/room.js"></script>
+</body>
+</html>

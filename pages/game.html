@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בינגו - משחק פעיל</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container" style="max-width: 600px;">
+        <div class="timer" id="timer">00:00</div>
+        <div id="block-alert" style="color: #e53e3e; font-weight: bold; margin-bottom: 10px;"></div>
+        
+        <div id="game-board" class="bingo-grid"></div>
+
+        <button id="open-block-modal-btn" class="secondary">כפתור בלוק</button>
+    </div>
+
+    <!-- מודל רשימת שחקנים לחסימה -->
+    <div id="block-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+        <div style="background:white; padding:20px; border-radius:10px; width: 90%; max-width: 400px; text-align: center;">
+            <h3>בחר שחקן לחסימה</h3>
+            <div id="modal-players-list" style="margin: 15px 0;"></div>
+            <div id="modal-words-list" style="margin: 15px 0;"></div>
+            <button id="close-modal-btn" class="secondary">סגור</button>
+        </div>
+    </div>
+
+    <script type="module" src="../js/game.js"></script>
+</body>
+</html>

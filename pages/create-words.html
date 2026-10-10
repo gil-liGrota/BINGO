@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בינגו - יצירת מילים</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>יצירת רשימת מילים</h2>
+        <p style="font-size: 14px; margin-bottom: 15px; color: #666;">הכנס לפחות 9 מילים (הפרד בעזרת פסיקים או שורות חדשות)</p>
+        <textarea id="words-input" rows="6" placeholder="מילה1, מילה2, מילה3..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e0; margin-bottom:15px;"></textarea>
+        <div id="error-msg" class="error-msg"></div>
+        <button id="save-words-btn">שמור רשימה</button>
+        <button class="secondary" onclick="location.href='lobby.html'">חזרה למסך הבית</button>
+    </div>
+
+    <script type="module" src="../js/createWords.js"></script>
+</body>
+</html>

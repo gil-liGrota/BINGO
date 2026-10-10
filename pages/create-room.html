@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בינגו - יצירת חדר</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>יצירת חדר חדש</h2>
+        <label>גודל הלוח:</label>
+        <select id="board-size">
+            <option value="3">3x3 (9 מילים)</option>
+            <option value="4">4x4 (16 מילים)</option>
+            <option value="5" selected>5x5 (25 מילים)</option>
+        </select>
+
+        <label style="display: block; margin: 15px 0; text-align: right;">
+            <input type="checkbox" id="preset-words-check" style="width: auto; margin-left: 8px;"> השתמש ברשימת המילים שלי
+        </label>
+
+        <button id="create-room-btn">צור חדר</button>
+        <button class="secondary" onclick="location.href='lobby.html'">חזרה</button>
+    </div>
+
+    <script type="module" src="../js/createRoom.js"></script>
+</body>
+</html>

@@ -8,21 +8,18 @@
 </head>
 <body>
     <div class="container">
-        <h2>יצירת חדר חדש</h2>
-        <label>גודל הלוח:</label>
-        <select id="board-size">
-            <option value="3" selected>3x3</option>
-            <option value="4">4x4</option>
-            <option value="5" >5x5</option>
-            <option value="6" >6x6</option>
-        </select>
+        <h2>יצירת חדר משחק חדש</h2>
+        
+        <div style="margin: 15px 0; text-align: right;">
+            <label style="cursor: pointer; display: flex; gap: 8px;">
+                <input type="checkbox" id="self-fill-checkbox" style="width: 18px; height: 18px;">
+                מילוי עצמי
+            </label>
+        </div>
 
-        <label style="display: block; margin: 15px 0; text-align: right;">
-            <input type="checkbox" id="preset-words-check" style="width: auto; margin-left: 8px;"> השתמש ברשימת המילים שלי
-        </label>
-
+        <div id="error-msg" class="error-msg"></div>
         <button id="create-room-btn">צור חדר</button>
-        <button class="secondary" onclick="location.href='lobby.html'">חזרה</button>
+        <button class="secondary" onclick="location.href='lobby.html'">חזרה למסך הבית</button>
     </div>
 
     <script type="module" src="../js/createRoom.js"></script>

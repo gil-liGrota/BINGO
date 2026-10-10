@@ -1,5 +1,5 @@
 import { db } from '../config/firebase.js';
-import { ref, update, push, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { ref, update, push, get, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 export class GameService {
   static async savePlayerBoard(roomCode, uid, boardArray) {
@@ -49,4 +49,12 @@ export class GameService {
       finishTime: timeElapsedSeconds
     });
   }
+
+  static listenToGame(roomCode, callback) {
+  const roomRef = ref(db, `rooms/${roomCode}`);
+  return onValue(roomRef, (snapshot) => {
+    const data = snapshot.val();
+    callback(data);
+  });
+}
 }

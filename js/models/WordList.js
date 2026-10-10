@@ -10,17 +10,24 @@ export class WordList{
     } 
 
     addWord(word) {
-        this.words.push(word);
+        const cleanWord = word.trim();
+        if (cleanWord && !this.words.includes(cleanWord)) {
+        this.words.push(cleanWord);
+        return true;
+        }
+        return false;
     }
     
     removeWord(word){
-        let index = this.words.indexOf(word);
-        if (index !== -1) {
-            this.words.splice(index, 1);
-        }
+        this.words = this.words.filter(w => w !== word);
     }
 
     isValid() {
-      return this.words.length >= MIN_LENGTH
+      return (
+        typeof this.title === 'string' &&
+        this.title.trim().length > 0 &&
+        Array.isArray(this.words) &&
+        this.words.length >= WordList.MIN_WORDS
+      );
     }
 }

@@ -2,121 +2,70 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bingo Realtime</title>
-
-  <!-- PWA & Theme Settings -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4F46E5">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-  <!-- CSS Styles -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="manifest" href="./manifest.json">
 </head>
 <body>
 
-  <div id="app">
-    <!-- header -->
-    <header class="app-header">
-      <h1>Bingo Realtime</h1>
-      <div id="user-status-bar" class="hidden">
-        <span id="display-username"></span>
-        <button id="logout-btn" class="btn-secondary">התנתק</button>
-      </div>
-    </header>
+  <header class="app-header">
+    <h1>Bingo Realtime</h1>
+  </header>
 
-    <!-- 1. AUTH SCREEN -->
-    <section id="auth-screen" class="view-screen active">
-      <div class="card">
-        <h2>התחברות / הרשמה</h2>
-        <form id="auth-form">
-          <input type="text" id="auth-username" placeholder="שם משתמש" required autocomplete="username">
-          <input type="password" id="auth-password" placeholder="סיסמה" required autocomplete="current-password">
-          <div class="auth-buttons">
-            <button type="submit" id="login-btn" class="btn-primary">התחבר</button>
-            <button type="button" id="register-btn" class="btn-secondary">הרשם</button>
-          </div>
-        </form>
-        <p id="auth-error" class="error-msg"></p>
-      </div>
-    </section>
-
-    <!-- 2. MAIN LOBBY SCREEN (אדם א') -->
-    <section id="lobby-screen" class="view-screen">
-      <div class="card">
-        <h2>תפריט ראשי</h2>
-        <div class="lobby-actions">
-          <button id="nav-create-room-btn" class="btn-primary">צור חדר חדש</button>
-          <button id="nav-join-room-btn" class="btn-secondary">הצטרף לחדר</button>
-          <button id="nav-wordlists-btn" class="btn-outline">ניהול רשימות מילים</button>
+  <main id="app">
+    <!-- 1. מסך התחברות / הרשמה -->
+    <section id="authSection" class="card">
+      <h2>התחברות / הרשמה</h2>
+      <form id="authForm" onsubmit="return false;">
+        <div class="form-group">
+          <input type="text" id="usernameInput" placeholder="שם משתמש / אימייל" required autocomplete="username" />
         </div>
-      </div>
-    </section>
-
-    <!-- 3. WORD LISTS MANAGEMENT SCREEN (אדם א') -->
-    <section id="wordlists-screen" class="view-screen">
-      <div class="card">
-        <h2>רשימות המילים שלי</h2>
-        <button id="back-to-lobby-from-words" class="btn-link">← חזרה לתפריט</button>
-        <div id="wordlists-container"></div>
-        <hr>
-        <h3>צור רשימה חדשה</h3>
-        <input type="text" id="new-list-title" placeholder="שם הרשימה">
-        <div class="word-input-group">
-          <input type="text" id="new-word-input" placeholder="הוסף מילה">
-          <button id="add-word-btn" class="btn-secondary">הוסף</button>
+        <div class="form-group">
+          <input type="password" id="passwordInput" placeholder="סיסמה (לפחות 6 תווים)" required autocomplete="current-password" />
         </div>
-        <ul id="current-words-list"></ul>
-        <button id="save-wordlist-btn" class="btn-primary">שמור רשימה</button>
+        
+        <p id="authError" class="error-message" style="display: none;"></p>
+
+        <div class="buttons-group">
+          <button type="button" id="loginBtn" class="btn btn-primary">התחבר</button>
+          <button type="button" id="registerBtn" class="btn btn-secondary">הרשם</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 2. מסך ראשי / לובי (מוסתר בהתחלה) -->
+    <section id="homeSection" class="card" style="display: none;">
+      <h2>ברוכים הבאים לבינגו!</h2>
+      <div class="home-actions">
+        <button id="btnCreateRoom" class="btn btn-primary">צור חדר חדש</button>
+        <button id="btnJoinRoom" class="btn btn-secondary">הצטרף לחדר</button>
+        <button id="btnManageWordLists" class="btn btn-outline">ניהול רשימות מילים</button>
       </div>
     </section>
 
-    <!-- 4. ROOM WAITING LOBBY (אדם א') -->
-    <section id="room-waiting-screen" class="view-screen">
-      <div class="card">
-        <h2>חדר המתנה: <span id="room-code-display"></span></h2>
+    <!-- 3. מסך חדר המתנה (RoomUI) -->
+    <section id="roomSection" class="card" style="display: none;">
+      <h2>חדר משחק: <span id="roomCodeDisplay"></span></h2>
+      <div id="playersListContainer">
         <h3>שחקנים בחדר:</h3>
-        <ul id="players-list"></ul>
-        <div id="host-controls" class="hidden">
-          <button id="start-game-btn" class="btn-primary">התחל משחק!</button>
-        </div>
+        <ul id="playersList"></ul>
+      </div>
+      <div id="hostControls" style="display: none;">
+        <button id="btnStartGame" class="btn btn-success">התחל משחק</button>
       </div>
     </section>
 
-    <!-- 5. GAME SCREEN (אדם ב') -->
-    <section id="game-screen" class="view-screen">
+    <!-- 4. מסך המשחק (GameUI) -->
+    <section id="gameSection" class="card" style="display: none;">
       <div class="game-header">
-        <div id="game-status-message">המשחק התחיל!</div>
-        <button id="open-block-modal-btn" class="btn-warning">חסימה (Block)!</button>
+        <h2 id="gameStatus">משחק פעיל</h2>
       </div>
-      
-      <!-- גריד המשחק -->
-      <div id="bingo-board" class="bingo-grid"></div>
-
-      <!-- מודאל חסימה -->
-      <div id="block-modal" class="modal hidden">
-        <div class="modal-content">
-          <h3>בחר שחקן ומילה לחסימה</h3>
-          <select id="target-player-select"></select>
-          <select id="target-word-select"></select>
-          <button id="confirm-block-btn" class="btn-danger">בצע חסימה</button>
-          <button id="close-block-modal-btn" class="btn-secondary">ביטול</button>
-        </div>
-      </div>
+      <div id="boardContainer" class="bingo-board"></div>
     </section>
+  </main>
 
-    <!-- 6. RESULTS MODAL (אדם ב') -->
-    <div id="results-modal" class="modal hidden">
-      <div class="modal-content">
-        <h2>תוצאות המשחק 🎉</h2>
-        <ol id="results-list"></ol>
-        <button id="back-to-lobby-from-results" class="btn-primary">חזרה לתפריט הראשי</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main JavaScript App (ES6 Module) -->
-  <script type="module" src="app.js"></script>
+  <!-- טעינת האפליקציה בנתיב המדויק מתוך תיקיית js -->
+  <script type="module" src="./js/app.js"></script>
 </body>
 </html>

@@ -108,7 +108,6 @@ function initRoom() {
 
     roomDataCache = docSnap.data();
 
-    // אם המצב הוא predefined והמשתמש עדיין לא קיבל לוח, נגריל לו מרשימת המילים של המארח (hostId)
     if (currentUser && roomDataCache.isSelfFill === "predefined") {
       const playerData = roomDataCache.players?.[currentUser.uid];
       if (playerData && !playerData.board && roomDataCache.hostId) {
@@ -124,7 +123,6 @@ function initRoom() {
   });
 }
 
-// פונקציה להגרלת מילים אקראית מתוך רשימת המילים של המארח
 async function generateAndSaveRandomBoard(uid, size, hostId) {
   try {
     const wordListDoc = await getDoc(doc(db, "wordLists", hostId));
@@ -205,7 +203,6 @@ function updateUI(roomData) {
         boardBuilderContainer.appendChild(grid);
       }
     } else {
-      // מצב רשימה קבועה (Predefined) - הצגת הלוח שהוגרל מרשימת המארח
       const title = document.createElement("h3");
       title.innerHTML = `קוד החדר: ${roomCode}<br>הלוח שלך הוגרל מרשימת המילים של המארח (${size}x${size}):`;
       boardBuilderContainer.appendChild(title);

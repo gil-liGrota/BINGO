@@ -11,6 +11,7 @@ import {
 const saveBoardBtn = document.getElementById("save-board-btn");
 const startGameBtn = document.getElementById("start-game-btn");
 const roomPlayersList = document.getElementById("room-players-list");
+const exitRoomBtn = document.getElementById("exit-room-btn");
 const boardBuilderContainer = document.getElementById(
   "board-builder-container",
 );
@@ -111,7 +112,6 @@ function initRoom() {
     }
 
     roomDataCache = docSnap.data();
-
     if (currentUser && roomDataCache.isSelfFill === "predefined") {
       const playerData = roomDataCache.players?.[currentUser.uid];
       if (playerData && !playerData.board) {
@@ -132,6 +132,7 @@ async function generateAndSaveRandomBoard(uid, size) {
     if (!wordListDoc.exists()) return;
 
     const allWords = wordListDoc.data().words || [];
+
     const totalCells = size * size;
 
     const shuffled = [...allWords].sort(() => 0.5 - Math.random());
@@ -161,6 +162,7 @@ function updateUI(roomData) {
       roomPlayersList.appendChild(li);
     }
   }
+
   saveBoardBtn.style.display = "block";
 
   if (startGameBtn) {
@@ -172,39 +174,41 @@ function updateUI(roomData) {
   }
 
   if (boardBuilderContainer) {
-    boardBuilderContainer.innerHTML = "";
-
     const size = roomData.boardSize || 5;
+
     const totalCells = size * size;
     const playerData = roomData.players?.[currentUser?.uid];
 
     if (roomData.isSelfFill === "self-fill") {
-      boardBuilderContainer.innerHTML = `<h3>קוד החדר: ${roomCode}</h3>`;
+      if (boardBuilderContainer.children.length === 0) {
+        boardBuilderContainer.innerHTML = `<h3>קוד החדר: ${roomCode}</h3>`;
 
-      const grid = document.createElement("div");
-      grid.style.display = "grid";
-      grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-      grid.style.gap = "5px";
-      grid.style.marginTop = "10px";
+        const grid = document.createElement("div");
+        grid.style.display = "grid";
+        grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        grid.style.gap = "5px";
+        grid.style.marginTop = "10px";
 
-      for (let i = 0; i < totalCells; i++) {
-        const input = document.createElement("input");
-        input.type = "text";
-        input.placeholder = `מילה ${i + 1}`;
-        input.className = "bingo-input";
-        input.style.padding = "8px";
-        input.style.textAlign = "center";
+        for (let i = 0; i < totalCells; i++) {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = `מילה ${i + 1}`;
+          input.className = "bingo-input";
+          input.style.padding = "8px";
+          input.style.textAlign = "center";
 
-        if (playerData && playerData.board) {
-          input.value = playerData.board[i] || "";
+          if (playerData && playerData.board) {
+            input.value = playerData.board[i] || "";
+          }
+
+          grid.appendChild(input);
         }
-
-        grid.appendChild(input);
+        boardBuilderContainer.appendChild(grid);
       }
-      boardBuilderContainer.appendChild(grid);
     } else {
       boardBuilderContainer.innerHTML = `<h3>קוד החדר: ${roomCode}</h3><h3>הלוח שלך הוגרל מרשימת המילים שלך (${size}x${size}):</h3>`;
       saveBoardBtn.style.display = "none";
+
       const grid = document.createElement("div");
       grid.style.display = "grid";
       grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
@@ -213,7 +217,7 @@ function updateUI(roomData) {
       grid.style.marginBottom = "10px";
 
       if (playerData && playerData.board) {
-        playerData.board.forEach((word, i) => {
+        playerData.board.forEach((word) => {
           const cell = document.createElement("div");
           cell.textContent = word;
           cell.style.padding = "10px";

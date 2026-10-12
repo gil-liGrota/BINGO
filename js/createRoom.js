@@ -8,6 +8,7 @@ import {
 
 const createRoomBtn = document.getElementById("create-room-btn");
 const selfFillCheckbox = document.getElementById("self-fill-checkbox");
+const boardSizeSelect = document.getElementById("board-size-select");
 const errorMsg = document.getElementById("error-msg");
 let currentUser = null;
 
@@ -39,7 +40,13 @@ async function createNewRoom() {
       if (errorMsg) errorMsg.textContent = "";
 
       try {
+        if (!currentUser) {
+          throw new Error("המשתמש אינו מחובר עדיין, נסה שוב רגע.");
+        }
+
         const isSelfFill = selfFillCheckbox ? selfFillCheckbox.checked : false;
+        const boardSize = boardSizeSelect ? parseInt(boardSizeSelect.value) : 5;
+        const totalCells = boardSize * boardSize;
 
         if (!isSelfFill) {
           const wordListDoc = await getDoc(
@@ -50,6 +57,27 @@ async function createNewRoom() {
               "אין לך רשימת מילים שמורה! עליך ליצור רשימה או לסמן אפשרות למילוי עצמי.",
             );
           }
+
+          const wordListData = wordListDoc.data();
+          const userWords = wordListData.words || [];
+
+          if (userWords.length < totalCells) {
+            throw new Error(
+              `רשימת המילים שלך מכילה ${userWords.length} מילים, אך לוח בגודל ${boardSize}x${boardSize} דורש לפחות ${totalCells} מילים!`,
+            );
+          }
+        }
+
+        let username = "שחקן";
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists() && userDocSnap.data().username) {
+            username = userDocSnap.data().username;
+          }
+        } catch (error) {
+          console.error("שגיאה בטעינת נתוני משתמש:", error);
         }
 
         const roomCode = generateRoomCode();
@@ -57,10 +85,13 @@ async function createNewRoom() {
         await setDoc(doc(db, "rooms", roomCode), {
           hostId: currentUser.uid,
           isSelfFill: isSelfFill ? "self-fill" : "predefined",
+          boardSize: boardSize,
           createdAt: new Date().toISOString(),
+          status: "waiting",
           players: {
             [currentUser.uid]: {
               joinedAt: new Date().toISOString(),
+              username: username,
             },
           },
         });

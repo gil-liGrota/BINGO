@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בינגו - התחברות</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>משחק הבינגו</h1>
+        <div id="error-container" class="error-msg"></div>
+        
+        <form id="auth-form">
+            <input type="email" id="email" placeholder="אימייל" required>
+            <input type="password" id="password" placeholder="סיסמה (6 תווים לפחות)" required>
+            <button type="submit" id="submit-btn">התחבר</button>
+        </form>
+        
+        <button type="button" class="secondary" id="toggle-auth-mode">אין לך חשבון? הירשם כאן</button>
+    </div>
+
+    <script type="module" src="../js/auth.js"></script>
+</body>
+</html>

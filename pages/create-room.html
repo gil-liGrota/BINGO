@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>בינגו - יצירת חדר</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>יצירת חדר משחק חדש</h2>
+
+      <div style="margin: 15px 0; text-align: right">
+        <label style="cursor: pointer; display: flex; gap: 8px">
+          <input
+            type="checkbox"
+            id="self-fill-checkbox"
+            style="width: 18px; height: 18px"
+          />
+          מילוי עצמי
+        </label>
+      </div>
+      <label for="board-size-select">גודל לוח הבינגו:</label>
+      <select id="board-size-select">
+        <option value="3" selected >3x3</option>
+        <option value="4">4x4</option>
+        <option value="5">5x5</option>
+      </select>
+
+      <div id="error-msg" class="error-msg"></div>
+      <button id="create-room-btn">צור חדר</button>
+      <button class="secondary" onclick="location.href = 'lobby.html'">
+        חזרה למסך הבית
+      </button>
+    </div>
+
+    <script type="module" src="../js/createRoom.js"></script>
+  </body>
+</html>

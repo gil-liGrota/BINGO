@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בינגו - הצטרפות לחדר</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>הצטרפות לחדר</h2>
+        <input type="text" id="room-code-input" placeholder="הכנס קוד חדר">
+        <button id="join-room-btn">הצטרף</button>
+        
+        <div id="room-info" style="display:none; margin-top: 20px;">
+            <h3>קוד החדר: <span id="display-code" style="color: #667eea;"></span></h3>
+            <p style="font-weight: bold; margin-top: 10px;">משתתפים בחדר:</p>
+            <ul id="participants-list" style="list-style: none; padding: 0; margin-top: 5px;"></ul>
+        </div>
+
+        <button class="secondary" style="margin-top: 15px;" onclick="location.href='lobby.html'">חזרה</button>
+    </div>
+
+    <script type="module" src="../js/joinRoom.js"></script>
+</body>
+</html>

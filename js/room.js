@@ -11,7 +11,6 @@ import {
 const saveBoardBtn = document.getElementById("save-board-btn");
 const startGameBtn = document.getElementById("start-game-btn");
 const roomPlayersList = document.getElementById("room-players-list");
-const exitRoomBtn = document.getElementById("exit-room-btn");
 const boardBuilderContainer = document.getElementById(
   "board-builder-container",
 );
@@ -68,10 +67,11 @@ function listenToRoomUpdates() {
             [`players.${currentUser.uid}.board`]: words,
           });
 
-          alert("הלוח האישי שלך נשמר בהצלחה במסד הנתונים!");
-        } else {
-          alert("הלוח שלך הוגרל ונשמר בהצלחה! ממתין למארח שיתחיל את המשחק.");
+          // alert("הלוח האישי שלך נשמר בהצלחה במסד הנתונים!");
         }
+        //  else {
+        //   alert("הלוח שלך הוגרל ונשמר בהצלחה! ממתין למארח שיתחיל את המשחק.");
+        // }
       } catch (error) {
         console.error("שגיאה בשמירת הלוח:", error);
         alert("שגיאה בשמירת הלוח.");
@@ -106,18 +106,21 @@ function initRoom() {
 
   onSnapshot(roomRef, async (docSnap) => {
     if (!docSnap.exists()) {
-      alert("החדר אינו קיים עוד.");
+      // alert("החדר אינו קיים עוד.");
       window.location.href = "lobby.html";
       return;
     }
 
     roomDataCache = docSnap.data();
+
+    // אם המצב הוא predefined והמשתמש עדיין לא קיבל לוח, נגריל לו מרשימת המילים של המארח (hostId)
     if (currentUser && roomDataCache.isSelfFill === "predefined") {
       const playerData = roomDataCache.players?.[currentUser.uid];
-      if (playerData && !playerData.board) {
+      if (playerData && !playerData.board && roomDataCache.hostId) {
         await generateAndSaveRandomBoard(
           currentUser.uid,
           roomDataCache.boardSize || 5,
+          roomDataCache.hostId,
         );
       }
     }
@@ -126,13 +129,13 @@ function initRoom() {
   });
 }
 
-async function generateAndSaveRandomBoard(uid, size) {
+// פונקציה להגרלת מילים אקראית מתוך רשימת המילים של המארח
+async function generateAndSaveRandomBoard(uid, size, hostId) {
   try {
-    const wordListDoc = await getDoc(doc(db, "wordLists", uid));
+    const wordListDoc = await getDoc(doc(db, "wordLists", hostId));
     if (!wordListDoc.exists()) return;
 
     const allWords = wordListDoc.data().words || [];
-
     const totalCells = size * size;
 
     const shuffled = [...allWords].sort(() => 0.5 - Math.random());
@@ -162,8 +165,8 @@ function updateUI(roomData) {
       roomPlayersList.appendChild(li);
     }
   }
-
-  saveBoardBtn.style.display = "block";
+  
+  if (saveBoardBtn) saveBoardBtn.style.display = "block";
 
   if (startGameBtn) {
     if (currentUser && currentUser.uid === roomData.hostId) {
@@ -174,8 +177,9 @@ function updateUI(roomData) {
   }
 
   if (boardBuilderContainer) {
-    const size = roomData.boardSize || 5;
+    boardBuilderContainer.innerHTML = "";
 
+    const size = roomData.boardSize || 5;
     const totalCells = size * size;
     const playerData = roomData.players?.[currentUser?.uid];
 
@@ -206,8 +210,12 @@ function updateUI(roomData) {
         boardBuilderContainer.appendChild(grid);
       }
     } else {
-      boardBuilderContainer.innerHTML = `<h3>קוד החדר: ${roomCode}</h3><h3>הלוח שלך הוגרל מרשימת המילים שלך (${size}x${size}):</h3>`;
-      saveBoardBtn.style.display = "none";
+      // מצב רשימה קבועה (Predefined) - הצגת הלוח שהוגרל מרשימת המארח
+      const title = document.createElement("h3");
+      title.innerHTML = `קוד החדר: ${roomCode}<br>הלוח שלך הוגרל מרשימת המילים של המארח (${size}x${size}):`;
+      boardBuilderContainer.appendChild(title);
+
+      if (saveBoardBtn) saveBoardBtn.style.display = "none";
 
       const grid = document.createElement("div");
       grid.style.display = "grid";
@@ -216,19 +224,24 @@ function updateUI(roomData) {
       grid.style.marginTop = "10px";
       grid.style.marginBottom = "10px";
 
-      if (playerData && playerData.board) {
+      if (playerData && playerData.board && Array.isArray(playerData.board)) {
         playerData.board.forEach((word) => {
           const cell = document.createElement("div");
           cell.textContent = word;
           cell.style.padding = "10px";
           cell.style.border = "1px solid #ccc";
           cell.style.textAlign = "center";
-          cell.style.borderRadius = "20px";
+          cell.style.borderRadius = "8px";
           cell.style.backgroundColor = "#f9f9f9";
           grid.appendChild(cell);
         });
-        boardBuilderContainer.appendChild(grid);
+      } else {
+        const loadingMsg = document.createElement("p");
+        loadingMsg.textContent = "מגריל לוח מילים...";
+        boardBuilderContainer.appendChild(loadingMsg);
       }
+
+      boardBuilderContainer.appendChild(grid);
     }
   }
 

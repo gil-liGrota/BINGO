@@ -66,15 +66,6 @@ button.secondary:hover {
     background-color: #cbd5e0;
 }
 
-button.exit-room-btn{
-    background-color: #e2e8f0;
-    color: #4a5568;
-}
-
-button.exit-room-btn:hover{
-    background-color: #cbd5e0;
-}
-
 .error-msg {
     color: #e53e3e;
     font-size: 14px;

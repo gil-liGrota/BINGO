@@ -68,7 +68,7 @@ async function createNewRoom() {
           }
         }
 
-        let username = "שחקן";
+        let username = "unknown";
         try {
           const userDocRef = doc(db, "users", currentUser.uid);
           const userDocSnap = await getDoc(userDocRef);

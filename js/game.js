@@ -145,7 +145,7 @@ function updateGameUI() {
         cell.textContent = word;
       } else if (isBlocked) {
         cell.style.backgroundColor = "#ffffffff";
-        cell.style.color = "white";
+        cell.style.color = "black";
         cell.textContent = `🚫 ${word}`;
       } else if (hasActiveBlock) {
         cell.style.backgroundColor = "#fed7d7";
@@ -224,7 +224,7 @@ async function declareWinner() {
     const playerData = roomDataCache.players?.[currentUser.uid];
     await updateDoc(roomRef, {
       winner: currentUser.uid,
-      winnerName: playerData?.username || "שחקן",
+      winnerName: playerData?.username || "unknown",
     });
   } catch (error) {
     console.error("שגיאה בהכרזה על מנצח:", error);
@@ -234,10 +234,6 @@ async function declareWinner() {
 if (openBlockModalBtn) {
   openBlockModalBtn.addEventListener("click", () => {
     const playerData = roomDataCache.players?.[currentUser.uid] || {};
-    if (playerData.hasBlocked) {
-    //   alert("כבר השתמשת בחסימה שלך למשחק זה!");
-      return;
-    }
     if (blockModal) {
       blockModal.style.display = "flex";
       
@@ -268,7 +264,7 @@ function renderModalPlayers() {
     if (uid === currentUser.uid) continue;
 
     const btn = document.createElement("button");
-    btn.textContent = playerData.username || "שחקן";
+    btn.textContent = playerData.username || "unknown";
     btn.className = "secondary";
     btn.style.margin = "5px";
     btn.style.display = "block";
@@ -326,11 +322,6 @@ async function blockWordForPlayer(targetUid, word) {
     const targetPlayer = roomDataCache.players[targetUid];
     const currentBlocked = targetPlayer.blockedWords || [];
 
-    if (currentBlocked.includes(word)) {
-    //   alert("המילה כבר חסומה!");
-      return;
-    }
-
     const updatedBlocked = [...currentBlocked, word];
     const roomRef = doc(db, "rooms", roomCode);
     
@@ -339,7 +330,6 @@ async function blockWordForPlayer(targetUid, word) {
       [`players.${currentUser.uid}.hasBlocked`]: true,
     });
 
-    // alert(`המילה "${word}" נחסמה בהצלחה!`);
     if (blockModal) blockModal.style.display = "none";
     if (modalWordsList) modalWordsList.innerHTML = "";
     if (modalPlayersList) modalPlayersList.innerHTML = "";

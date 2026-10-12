@@ -67,11 +67,7 @@ function listenToRoomUpdates() {
             [`players.${currentUser.uid}.board`]: words,
           });
 
-          // alert("הלוח האישי שלך נשמר בהצלחה במסד הנתונים!");
         }
-        //  else {
-        //   alert("הלוח שלך הוגרל ונשמר בהצלחה! ממתין למארח שיתחיל את המשחק.");
-        // }
       } catch (error) {
         console.error("שגיאה בשמירת הלוח:", error);
         alert("שגיאה בשמירת הלוח.");
@@ -106,7 +102,6 @@ function initRoom() {
 
   onSnapshot(roomRef, async (docSnap) => {
     if (!docSnap.exists()) {
-      // alert("החדר אינו קיים עוד.");
       window.location.href = "lobby.html";
       return;
     }

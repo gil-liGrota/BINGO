@@ -28,7 +28,6 @@ saveWordsBtn.addEventListener('click', async () => {
     try {
         const wordsArray = parseAndValidateWords(rawText);
         await saveWordsToFirestore(currentUser.uid, wordsArray);
-        // alert('רשימת המילים נשמרה בהצלחה!');
         window.location.href = 'lobby.html';
     } catch (error) {
         errorMsg.textContent = error.message;

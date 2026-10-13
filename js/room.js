@@ -36,6 +36,32 @@ function checkAuthState() {
 
 checkAuthState();
 
+async function leaveRoom() {
+  try {
+    if (currentUser && roomCode) {
+      const roomRef = doc(db, "rooms", roomCode);
+      const docSnap = await getDoc(roomRef);
+      if (docSnap.exists()) {
+        const roomData = docSnap.data();
+        const players = roomData.players || {};
+
+        if (currentUser.uid === roomData.hostId) {
+          await updateDoc(roomRef, { status: "game over" });
+        } else {
+          delete players[currentUser.uid];
+          await updateDoc(roomRef, { players: players });
+        }
+      }
+    }
+  } catch (error) {
+    console.error("שגיאה בעזיבת החדר:", error);
+  }
+}
+
+window.addEventListener("beforeunload", () => {
+  leaveRoom();
+});
+
 function listenToRoomUpdates() {
   if (saveBoardBtn) {
     saveBoardBtn.addEventListener("click", async () => {
@@ -116,6 +142,20 @@ function initRoom() {
     }
 
     roomDataCache = docSnap.data();
+
+    if (roomDataCache.status === "game over") {
+      alert("המשחק הסתיים או שהמארח עזב את החדר.");
+      localStorage.removeItem("roomCode");
+      window.location.href = "lobby.html";
+      return;
+    }
+
+    if (roomDataCache.hostId && roomDataCache.players && !roomDataCache.players[roomDataCache.hostId]) {
+      alert("המארח עזב את החדר.");
+      localStorage.removeItem("roomCode");
+      window.location.href = "lobby.html";
+      return;
+    }
 
     if (currentUser && roomDataCache.isSelfFill === "predefined") {
       const playerData = roomDataCache.players?.[currentUser.uid];

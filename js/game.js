@@ -20,6 +20,7 @@ const blockModal = document.getElementById("block-modal");
 const closeModalBtn = document.getElementById("close-modal-btn");
 const modalPlayersList = document.getElementById("modal-players-list");
 const modalWordsList = document.getElementById("modal-words-list");
+const leaveGameBtn = document.getElementById("leave-game-btn");
 
 function checkAuthState() {
   if (!roomCode) {
@@ -42,7 +43,7 @@ checkAuthState();
 function initGame() {
   const roomRef = doc(db, "rooms", roomCode);
 
-  onSnapshot(roomRef, (docSnap) => {
+  onSnapshot(roomRef, async (docSnap) => {
     if (!docSnap.exists()) {
       alert("החדר אינו קיים עוד.");
       window.location.href = "lobby.html";
@@ -50,6 +51,22 @@ function initGame() {
     }
 
     roomDataCache = docSnap.data();
+    const players = roomDataCache.players || {};
+
+    const hostId = roomDataCache.hostId;
+    if (hostId && !players[hostId]) {
+      if (timerInterval) clearInterval(timerInterval);
+      
+      await removeSelfAndExit("המארח עזב את המשחק. החדר נסגר.");
+      return;
+    }
+
+    if (roomDataCache.status === "game over") {
+      if (timerInterval) clearInterval(timerInterval);
+      alert("המשחק הסתיים.");
+      window.location.href = "lobby.html";
+      return;
+    }
 
     if (roomDataCache.winner) {
       if (timerInterval) clearInterval(timerInterval);
@@ -58,6 +75,38 @@ function initGame() {
     }
 
     updateGameUI();
+  });
+}
+
+async function removeSelfAndExit(message) {
+  try {
+    if (currentUser && roomCode) {
+      const roomRef = doc(db, "rooms", roomCode);
+      const docSnap = await getDoc(roomRef);
+      if (docSnap.exists()) {
+        const currentPlayers = docSnap.data().players || {};
+        delete currentPlayers[currentUser.uid];
+
+        const updateData = { players: currentPlayers };
+        if (Object.keys(currentPlayers).length === 0) {
+          updateData.status = "game over";
+        }
+
+        await updateDoc(roomRef, updateData);
+      }
+    }
+  } catch (error) {
+    console.error("שגיאה בהסרת השחקן מהרשימה:", error);
+  }
+
+  if (message) alert(message);
+  localStorage.removeItem("roomCode");
+  window.location.href = "lobby.html";
+}
+
+if (leaveGameBtn) {
+  leaveGameBtn.addEventListener("click", async () => {
+    await removeSelfAndExit();
   });
 }
 
@@ -71,7 +120,17 @@ function showWinnerNotification(winnerName) {
   }
   if (openBlockModalBtn) openBlockModalBtn.style.display = "none";
   
-  setTimeout(() => {
+  setTimeout(async () => {
+    try {
+      const roomRef = doc(db, "rooms", roomCode);
+      await updateDoc(roomRef, {
+        status: "waiting",
+        winner: null,
+        winnerName: null,
+      });
+    } catch (e) {
+      console.error(e);
+    }
     window.location.href = "lobby.html";
   }, 4000);
 }
@@ -144,7 +203,7 @@ function updateGameUI() {
         cell.style.color = "white";
         cell.textContent = word;
       } else if (isBlocked) {
-        cell.style.backgroundColor = "#ffffffff";
+        cell.style.backgroundColor = "#ffffff";
         cell.style.color = "black";
         cell.textContent = `🚫 ${word}`;
       } else if (hasActiveBlock) {
@@ -225,6 +284,7 @@ async function declareWinner() {
     await updateDoc(roomRef, {
       winner: currentUser.uid,
       winnerName: playerData?.username || "unknown",
+      status: "game over",
     });
   } catch (error) {
     console.error("שגיאה בהכרזה על מנצח:", error);

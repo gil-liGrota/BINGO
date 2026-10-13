@@ -66,7 +66,7 @@ function listenToRoomUpdates() {
           await updateDoc(roomRef, {
             [`players.${currentUser.uid}.board`]: words,
           });
-
+          alert("הלוח נשמר בהצלחה!");
         }
       } catch (error) {
         console.error("שגיאה בשמירת הלוח:", error);
@@ -82,6 +82,15 @@ function setupHostControls() {
   if (startGameBtn) {
     startGameBtn.addEventListener("click", async () => {
       try {
+        const players = roomDataCache.players || {};
+        const playerEntries = Object.values(players);
+        const allBoardsReady = playerEntries.length > 0 && playerEntries.every(player => player.board && Array.isArray(player.board) && player.board.length > 0);
+
+        if (!allBoardsReady) {
+          alert("לא ניתן להתחיל את המשחק עד שכל השחקנים יסיימו למלא/לקבל את הלוחות שלהם!");
+          return;
+        }
+
         const roomRef = doc(db, "rooms", roomCode);
         await updateDoc(roomRef, {
           status: "playing",
@@ -150,10 +159,13 @@ function updateUI(roomData) {
 
     for (const [uid, playerData] of Object.entries(players)) {
       const li = document.createElement("li");
+      const hasBoard = playerData.board && Array.isArray(playerData.board) && playerData.board.length > 0;
+      const boardStatus = hasBoard ? "✅ (מוכן)" : "⏳ (טרם מילא)";
+
       li.textContent =
         uid === roomData.hostId
-          ? `👑 ${playerData.username || "unknown"}`
-          : `👤 ${playerData.username || "unknown"}`;
+          ? `👑 ${playerData.username || "unknown"} ${boardStatus}`
+          : `👤 ${playerData.username || "unknown"} ${boardStatus}`;
       li.style.padding = "5px 0";
       roomPlayersList.appendChild(li);
     }
@@ -164,6 +176,23 @@ function updateUI(roomData) {
   if (startGameBtn) {
     if (currentUser && currentUser.uid === roomData.hostId) {
       startGameBtn.style.display = "block";
+
+      const players = roomData.players || {};
+      const playerEntries = Object.values(players);
+      const allBoardsReady = playerEntries.length > 0 && playerEntries.every(player => player.board && Array.isArray(player.board) && player.board.length > 0);
+
+      if (allBoardsReady) {
+        startGameBtn.disabled = false;
+        startGameBtn.style.opacity = "1";
+        startGameBtn.style.cursor = "pointer";
+        startGameBtn.textContent = "התחל משחק 🚀";
+      } else {
+        startGameBtn.disabled = true;
+        startGameBtn.style.opacity = "0.5";
+        startGameBtn.style.cursor = "not-allowed";
+        startGameBtn.textContent = "ממתין שכל השחקנים ימלאו לוח...";
+      }
+
     } else {
       startGameBtn.style.display = "none";
     }

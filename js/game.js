@@ -45,7 +45,6 @@ function initGame() {
 
   onSnapshot(roomRef, async (docSnap) => {
     if (!docSnap.exists()) {
-      alert("החדר אינו קיים עוד.");
       window.location.href = "lobby.html";
       return;
     }
@@ -54,21 +53,14 @@ function initGame() {
     const players = roomDataCache.players || {};
 
     const hostId = roomDataCache.hostId;
-    if (hostId && !players[hostId]) {
+    if (hostId && roomDataCache.status === "playing" && !players[hostId]) {
       if (timerInterval) clearInterval(timerInterval);
-      
-      await removeSelfAndExit("המארח עזב את המשחק. החדר נסגר.");
+      showGameOverScreen("המארח עזב את המשחק. החדר נסגר.");
+      await removeSelfAndExitSilently();
       return;
     }
 
-    if (roomDataCache.status === "game over") {
-      if (timerInterval) clearInterval(timerInterval);
-      alert("המשחק הסתיים.");
-      window.location.href = "lobby.html";
-      return;
-    }
-
-    if (roomDataCache.winner) {
+    if (roomDataCache.status === "game over" && roomDataCache.winner) {
       if (timerInterval) clearInterval(timerInterval);
       showWinnerNotification(roomDataCache.winnerName);
       return;
@@ -78,7 +70,7 @@ function initGame() {
   });
 }
 
-async function removeSelfAndExit(message) {
+async function removeSelfAndExitSilently() {
   try {
     if (currentUser && roomCode) {
       const roomRef = doc(db, "rooms", roomCode);
@@ -96,18 +88,49 @@ async function removeSelfAndExit(message) {
       }
     }
   } catch (error) {
-    console.error("שגיאה בהסרת השחקן מהרשימה:", error);
+    console.error("שגיאה:", error);
   }
 
-  if (message) alert(message);
-  localStorage.removeItem("roomCode");
-  window.location.href = "lobby.html";
+  setTimeout(() => {
+    localStorage.removeItem("roomCode");
+    window.location.href = "lobby.html";
+  }, 3500);
 }
 
 if (leaveGameBtn) {
   leaveGameBtn.addEventListener("click", async () => {
-    await removeSelfAndExit();
+    try {
+      const roomRef = doc(db, "rooms", roomCode);
+      if (currentUser && roomDataCache && currentUser.uid === roomDataCache.hostId) {
+        await updateDoc(roomRef, { status: "game over" });
+      } else {
+        const updatedPlayers = { ...roomDataCache.players };
+        delete updatedPlayers[currentUser.uid];
+        await updateDoc(roomRef, { players: updatedPlayers });
+      }
+      localStorage.removeItem("roomCode");
+      window.location.href = "lobby.html";
+    } catch (error) {
+      window.location.href = "lobby.html";
+    }
   });
+}
+
+function showGameOverScreen(message) {
+  if (gameBoard) {
+    gameBoard.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #e53e3e; color: white; border-radius: 12px; font-size: 22px; font-weight: bold;">
+        ⚠️ ${message} <br><span style="font-size: 16px; font-weight: normal;">מעביר אותך בחזרה ללובי...</span>
+      </div>
+    `;
+  }
+  if (openBlockModalBtn) openBlockModalBtn.style.display = "none";
+  if (blockAlert) blockAlert.style.display = "none";
+
+  setTimeout(() => {
+    localStorage.removeItem("roomCode");
+    window.location.href = "lobby.html";
+  }, 3500);
 }
 
 function showWinnerNotification(winnerName) {
@@ -119,18 +142,10 @@ function showWinnerNotification(winnerName) {
     `;
   }
   if (openBlockModalBtn) openBlockModalBtn.style.display = "none";
-  
-  setTimeout(async () => {
-    try {
-      const roomRef = doc(db, "rooms", roomCode);
-      await updateDoc(roomRef, {
-        status: "waiting",
-        winner: null,
-        winnerName: null,
-      });
-    } catch (e) {
-      console.error(e);
-    }
+  if (blockAlert) blockAlert.style.display = "none";
+
+  setTimeout(() => {
+    localStorage.removeItem("roomCode");
     window.location.href = "lobby.html";
   }, 4000);
 }
@@ -148,15 +163,32 @@ function startTimer() {
 }
 
 function updateGameUI() {
-  if (!roomDataCache || !currentUser || roomDataCache.winner) return;
+  if (!roomDataCache || !currentUser || roomDataCache.winner || roomDataCache.status === "game over")
+    return;
 
   const playerData = roomDataCache.players?.[currentUser.uid] || {};
-  const board = playerData.board || [];
+  let board = playerData.board;
+  const size = roomDataCache.boardSize || 5;
+  const totalCells = size * size;
+
+  if (!board || !Array.isArray(board) || board.length === 0) {
+    const savedLocalBoard = localStorage.getItem("playerBoard");
+    if (savedLocalBoard) {
+      try {
+        board = JSON.parse(savedLocalBoard);
+      } catch (e) {
+        board = [];
+      }
+    }
+
+    if (!board || board.length === 0) {
+      board = Array.from({ length: totalCells }, (_, i) => `מילה ${i + 1}`);
+    }
+  }
+
   const blockedWords = playerData.blockedWords || [];
   const clickedIndices = playerData.clickedIndices || [];
   const hasBlocked = playerData.hasBlocked || false;
-  const size = roomDataCache.boardSize || 5;
-  const totalCells = size * size;
 
   if (openBlockModalBtn) {
     if (hasBlocked) {
@@ -225,7 +257,7 @@ function updateGameUI() {
         if (currentBlockedWords.includes(word)) {
           const updatedBlocked = currentBlockedWords.filter((w) => w !== word);
           const updatedClicked = [...currentClickedIndices, index];
-          
+
           try {
             const roomRef = doc(db, "rooms", roomCode);
             await updateDoc(roomRef, {
@@ -237,7 +269,7 @@ function updateGameUI() {
               declareWinner();
             }
           } catch (error) {
-            console.error("שגיאה בשחרור וסימון הכרטיסייה:", error);
+            console.error(error);
           }
           return;
         }
@@ -268,7 +300,7 @@ function updateGameUI() {
             declareWinner();
           }
         } catch (error) {
-          console.error("שגיאה בעדכון הסימון:", error);
+          console.error(error);
         }
       });
 
@@ -287,7 +319,7 @@ async function declareWinner() {
       status: "game over",
     });
   } catch (error) {
-    console.error("שגיאה בהכרזה על מנצח:", error);
+    console.error(error);
   }
 }
 
@@ -296,10 +328,13 @@ if (openBlockModalBtn) {
     const playerData = roomDataCache.players?.[currentUser.uid] || {};
     if (blockModal) {
       blockModal.style.display = "flex";
-      
+
       if (playerData.chosenTargetUid) {
         if (modalPlayersList) modalPlayersList.innerHTML = "";
-        renderPlayerWordsToBlock(playerData.chosenTargetUid, roomDataCache.players[playerData.chosenTargetUid]);
+        renderPlayerWordsToBlock(
+          playerData.chosenTargetUid,
+          roomDataCache.players[playerData.chosenTargetUid],
+        );
       } else {
         renderModalPlayers();
       }
@@ -330,19 +365,19 @@ function renderModalPlayers() {
     btn.style.display = "block";
     btn.style.width = "100%";
     btn.style.padding = "8px";
-    
+
     btn.addEventListener("click", async () => {
       try {
         const roomRef = doc(db, "rooms", roomCode);
         await updateDoc(roomRef, {
           [`players.${currentUser.uid}.chosenTargetUid`]: uid,
         });
-        
+
         roomDataCache.players[currentUser.uid].chosenTargetUid = uid;
         if (modalPlayersList) modalPlayersList.innerHTML = "";
         renderPlayerWordsToBlock(uid, playerData);
       } catch (error) {
-        console.error("שגיאה בשמירת השחקן הנבחר:", error);
+        console.error(error);
       }
     });
 
@@ -370,21 +405,21 @@ function renderPlayerWordsToBlock(targetUid, playerData) {
       wordBtn.style.width = "100%";
       wordBtn.style.padding = "8px";
       wordBtn.addEventListener("click", async () => {
-        await blockWordForPlayer(targetUid, word);
+        await blockWordForPatientOrTarget(targetUid, word);
       });
       modalWordsList.appendChild(wordBtn);
     }
   });
 }
 
-async function blockWordForPlayer(targetUid, word) {
+async function blockWordForPatientOrTarget(targetUid, word) {
   try {
     const targetPlayer = roomDataCache.players[targetUid];
     const currentBlocked = targetPlayer.blockedWords || [];
 
     const updatedBlocked = [...currentBlocked, word];
     const roomRef = doc(db, "rooms", roomCode);
-    
+
     await updateDoc(roomRef, {
       [`players.${targetUid}.blockedWords`]: updatedBlocked,
       [`players.${currentUser.uid}.hasBlocked`]: true,
@@ -394,7 +429,6 @@ async function blockWordForPlayer(targetUid, word) {
     if (modalWordsList) modalWordsList.innerHTML = "";
     if (modalPlayersList) modalPlayersList.innerHTML = "";
   } catch (error) {
-    console.error("שגיאה בחסימת מילה:", error);
-    alert("שגיאה בחסימת המילה.");
+    console.error(error);
   }
 }

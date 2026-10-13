@@ -71,8 +71,8 @@ function listenToRoomUpdates() {
           const words = [];
           inputs.forEach((input) => words.push(input.value.trim()));
 
-          const totalCells =
-            (roomDataCache.boardSize || 5) * (roomDataCache.boardSize || 5);
+          const size = roomDataCache.boardSize || 5;
+          const totalCells = size * size;
 
           if (
             words.some((word) => word === "") ||
@@ -92,6 +92,8 @@ function listenToRoomUpdates() {
           await updateDoc(roomRef, {
             [`players.${currentUser.uid}.board`]: words,
           });
+
+          localStorage.setItem("playerBoard", JSON.stringify(words));
           alert("הלוח נשמר בהצלחה!");
         }
       } catch (error) {
@@ -159,13 +161,17 @@ function initRoom() {
 
     if (currentUser && roomDataCache.isSelfFill === "predefined") {
       const playerData = roomDataCache.players?.[currentUser.uid];
-      if (playerData && !playerData.board && roomDataCache.hostId) {
+      if (playerData && (!playerData.board || playerData.board.length === 0) && roomDataCache.hostId) {
         await generateAndSaveRandomBoard(
           currentUser.uid,
           roomDataCache.boardSize || 5,
           roomDataCache.hostId,
         );
       }
+    }
+
+    if (currentUser && roomDataCache.players?.[currentUser.uid]?.board) {
+      localStorage.setItem("playerBoard", JSON.stringify(roomDataCache.players[currentUser.uid].board));
     }
 
     updateUI(roomDataCache);
@@ -187,6 +193,7 @@ async function generateAndSaveRandomBoard(uid, size, hostId) {
     await updateDoc(roomRef, {
       [`players.${uid}.board`]: selectedWords,
     });
+    localStorage.setItem("playerBoard", JSON.stringify(selectedWords));
   } catch (error) {
     console.error("שגיאה בהגרלת הלוח האוטומטי:", error);
   }
